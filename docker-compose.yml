@@ -12,56 +12,58 @@ version: '3'
 
 services:
 ## App and Worker
-  app:
-    # Comment to use dockerhub image
-    build:
-      context: .
-      dockerfile: contrib/docker/Dockerfile.apache
-    image: pixelfed
-    restart: unless-stopped
-    env_file:
-      - .env.docker
-    volumes:
-      - app-storage:/var/www/storage
-      - app-bootstrap:/var/www/bootstrap
-      - "./.env.docker:/var/www/.env"
-    networks:
-      - external
-      - internal
-    ports:
-      - "8080:80"
-    depends_on:
-      - db
-      - redis
-
-  worker:
-    build:
-      context: .
-      dockerfile: contrib/docker/Dockerfile.apache
-    image: pixelfed
-    restart: unless-stopped
-    env_file:
-      - .env.docker
-    volumes:
-      - app-storage:/var/www/storage
-      - app-bootstrap:/var/www/bootstrap
-    networks:
-      - external
-      - internal
-    command: gosu www-data php artisan horizon
-    depends_on:
-      - db
-      - redis
-
+#  app:
+#    # Comment to use dockerhub image
+#    build:
+#      context: .
+#      dockerfile: contrib/docker/Dockerfile.apache
+#    image: pixelfed
+#    restart: unless-stopped
+#    env_file:
+#      - .env.docker
+#    volumes:
+#      - app-storage:/var/www/storage
+#      - app-bootstrap:/var/www/bootstrap
+#      - "./.env.docker:/var/www/.env"
+#    networks:
+#      - external
+#      - internal
+#    ports:
+#      - "8080:80"
+#    depends_on:
+#      - db
+#      - redis
+#
+#  worker:
+#    build:
+#      context: .
+#      dockerfile: contrib/docker/Dockerfile.apache
+#    image: pixelfed
+#    restart: unless-stopped
+#    env_file:
+#      - .env.docker
+#    volumes:
+#      - app-storage:/var/www/storage
+#      - app-bootstrap:/var/www/bootstrap
+#    networks:
+#      - external
+#      - internal
+#    command: gosu www-data php artisan horizon
+#    depends_on:
+#      - db
+#      - redis
+#
 ## DB and Cache
   db:
     image: mysql:8.0
     restart: unless-stopped
-    networks:
-      - internal
+    #networks:
+    #  - internal
     command: --default-authentication-plugin=mysql_native_password
     env_file:
       - .env.docker
+    ports:
+      - "3306:3306"
     volumes:
       - "db-data:/var/lib/mysql"
 
@@ -72,8 +74,10 @@ services:
       - .env.docker
     volumes:
       - "redis-data:/data"
-    networks:
-      - internal
+    ports:
+      - "9443:9443"
+    #networks:
+    #  - internal
 
 volumes:
   db-data:
@@ -81,8 +85,8 @@ volumes:
   app-storage:
   app-bootstrap:
 
-networks:
-  internal:
-    internal: true
-  external:
-    driver: bridge
+#networks:
+#  internal:
+#    internal: true
+#  external:
+#    driver: bridge
